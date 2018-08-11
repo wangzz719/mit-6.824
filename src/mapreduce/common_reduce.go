@@ -1,10 +1,17 @@
 package mapreduce
 
+import (
+	"os"
+	"encoding/json"
+	"io"
+			"sort"
+)
+
 func doReduce(
 	jobName string, // the name of the whole MapReduce job
 	reduceTask int, // which reduce task this is
 	outFile string, // write the output here
-	nMap int, // the number of map tasks that were run ("M" in the paper)
+	nMap int,       // the number of map tasks that were run ("M" in the paper)
 	reduceF func(key string, values []string) string,
 ) {
 	//
@@ -44,4 +51,48 @@ func doReduce(
 	//
 	// Your code here (Part I).
 	//
+
+	kvs := make([]*KeyValue, 0)
+	keyValues := make(map[string][]string)
+	keys := make([]string, 0)
+
+	for i := 0; i < nMap; i++ {
+		fileName := reduceName(jobName, i, reduceTask)
+		f, err := os.Open(fileName)
+		if err != nil {
+			panic(err)
+		}
+		dec := json.NewDecoder(f)
+		for {
+			var kv *KeyValue
+			err := dec.Decode(&kv)
+			if err == io.EOF {
+				break
+			} else if err != nil {
+				panic(err)
+			}
+			if _, ok := keyValues[kv.Key]; !ok {
+				keys = append(keys, kv.Key)
+			}
+			keyValues[kv.Key] = append(keyValues[kv.Key], kv.Value)
+			kvs = append(kvs, kv)
+		}
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		return keys[i] < keys[j]
+	})
+
+	reduceFile, err := os.Create(outFile)
+
+	if err != nil {
+		panic(err)
+	}
+	enc := json.NewEncoder(reduceFile)
+	for _, k := range keys {
+		err := enc.Encode(&KeyValue{k, reduceF(k, keyValues[k])})
+		if err != nil {
+			panic(err)
+		}
+	}
 }
