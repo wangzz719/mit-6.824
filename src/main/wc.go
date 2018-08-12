@@ -2,8 +2,12 @@ package main
 
 import (
 	"fmt"
-	"mapreduce"
 	"os"
+	"strconv"
+	"strings"
+	"unicode"
+
+	"github.com/wangzz719/mit-6.824/src/mapreduce"
 )
 
 //
@@ -13,8 +17,17 @@ import (
 // and look only at the contents argument. The return value is a slice
 // of key/value pairs.
 //
-func mapF(filename string, contents string) []mapreduce.KeyValue {
+func mapFWC(filename string, contents string) []mapreduce.KeyValue {
 	// Your code here (Part II).
+	f := func(c rune) bool {
+		return !unicode.IsLetter(c)
+	}
+	keys := strings.FieldsFunc(contents, f)
+	keyValues := make([]mapreduce.KeyValue, 0)
+	for _, key := range keys {
+		keyValues = append(keyValues, mapreduce.KeyValue{Key: key, Value: "1"})
+	}
+	return keyValues
 }
 
 //
@@ -22,8 +35,10 @@ func mapF(filename string, contents string) []mapreduce.KeyValue {
 // map tasks, with a list of all the values created for that key by
 // any map task.
 //
-func reduceF(key string, values []string) string {
+func reduceFWC(key string, values []string) string {
 	// Your code here (Part II).
+	count := len(values)
+	return strconv.FormatInt(int64(count), 10)
 }
 
 // Can be run in 3 ways:
@@ -36,12 +51,12 @@ func main() {
 	} else if os.Args[1] == "master" {
 		var mr *mapreduce.Master
 		if os.Args[2] == "sequential" {
-			mr = mapreduce.Sequential("wcseq", os.Args[3:], 3, mapF, reduceF)
+			mr = mapreduce.Sequential("wcseq", os.Args[3:], 3, mapFWC, reduceFWC)
 		} else {
 			mr = mapreduce.Distributed("wcseq", os.Args[3:], 3, os.Args[2])
 		}
 		mr.Wait()
 	} else {
-		mapreduce.RunWorker(os.Args[2], os.Args[3], mapF, reduceF, 100, nil)
+		mapreduce.RunWorker(os.Args[2], os.Args[3], mapFWC, reduceFWC, 100, nil)
 	}
 }

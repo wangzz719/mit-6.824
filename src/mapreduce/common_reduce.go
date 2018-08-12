@@ -1,17 +1,17 @@
 package mapreduce
 
 import (
-	"os"
 	"encoding/json"
 	"io"
-			"sort"
+	"os"
+	"sort"
 )
 
 func doReduce(
 	jobName string, // the name of the whole MapReduce job
 	reduceTask int, // which reduce task this is
 	outFile string, // write the output here
-	nMap int,       // the number of map tasks that were run ("M" in the paper)
+	nMap int, // the number of map tasks that were run ("M" in the paper)
 	reduceF func(key string, values []string) string,
 ) {
 	//
