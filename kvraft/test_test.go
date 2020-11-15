@@ -146,8 +146,8 @@ func partitioner(t *testing.T, cfg *config, ch chan bool, done *int32) {
 // particular key.  If unreliable is set, RPCs may fail.  If crash is set, the
 // servers crash after the period is over and restart.  If partitions is set,
 // the test repartitions the network concurrently with the clients and servers. If
-// maxraftstate is a positive number, the size of the state for Raft (i.e., log
-// size) shouldn't exceed 2*maxraftstate.
+// maxRaftState is a positive number, the size of the state for Raft (i.e., log
+// size) shouldn't exceed 2*maxRaftState.
 func GenericTest(t *testing.T, part string, nclients int, unreliable bool, crash bool, partitions bool, maxraftstate int) {
 
 	title := "Test: "
@@ -174,7 +174,7 @@ func GenericTest(t *testing.T, part string, nclients int, unreliable bool, crash
 	title = title + " (" + part + ")" // 3A or 3B
 
 	const nservers = 5
-	cfg := make_config(t, nservers, unreliable, maxraftstate)
+	cfg := makeConfig(t, nservers, unreliable, maxraftstate)
 	defer cfg.cleanup()
 
 	cfg.begin(title)
@@ -307,7 +307,7 @@ func GenericTestLinearizability(t *testing.T, part string, nclients int, nserver
 	}
 	title = title + ", linearizability checks (" + part + ")" // 3A or 3B
 
-	cfg := make_config(t, nservers, unreliable, maxraftstate)
+	cfg := makeConfig(t, nservers, unreliable, maxraftstate)
 	defer cfg.cleanup()
 
 	cfg.begin(title)
@@ -440,7 +440,7 @@ func TestUnreliable3A(t *testing.T) {
 
 func TestUnreliableOneKey3A(t *testing.T) {
 	const nservers = 3
-	cfg := make_config(t, nservers, true, -1)
+	cfg := makeConfig(t, nservers, true, -1)
 	defer cfg.cleanup()
 
 	ck := cfg.makeClient(cfg.All())
@@ -475,7 +475,7 @@ func TestUnreliableOneKey3A(t *testing.T) {
 // network ends up in the minority partition.
 func TestOnePartition3A(t *testing.T) {
 	const nservers = 5
-	cfg := make_config(t, nservers, false, -1)
+	cfg := makeConfig(t, nservers, false, -1)
 	defer cfg.cleanup()
 	ck := cfg.makeClient(cfg.All())
 
@@ -483,7 +483,7 @@ func TestOnePartition3A(t *testing.T) {
 
 	cfg.begin("Test: progress in majority (3A)")
 
-	p1, p2 := cfg.make_partition()
+	p1, p2 := cfg.makePartition()
 	cfg.partition(p1, p2)
 
 	ckp1 := cfg.makeClient(p1)  // connect ckp1 to p1
@@ -597,7 +597,7 @@ func TestPersistPartitionUnreliableLinearizable3A(t *testing.T) {
 func TestSnapshotRPC3B(t *testing.T) {
 	const nservers = 3
 	maxraftstate := 1000
-	cfg := make_config(t, nservers, false, maxraftstate)
+	cfg := makeConfig(t, nservers, false, maxraftstate)
 	defer cfg.cleanup()
 
 	ck := cfg.makeClient(cfg.All())
@@ -654,7 +654,7 @@ func TestSnapshotSize3B(t *testing.T) {
 	const nservers = 3
 	maxraftstate := 1000
 	maxsnapshotstate := 500
-	cfg := make_config(t, nservers, false, maxraftstate)
+	cfg := makeConfig(t, nservers, false, maxraftstate)
 	defer cfg.cleanup()
 
 	ck := cfg.makeClient(cfg.All())

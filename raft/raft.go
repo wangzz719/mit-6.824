@@ -17,8 +17,11 @@ package raft
 //   in the same server.
 //
 
-import "sync"
-import "labrpc"
+import (
+	"sync"
+
+	"github.com/wangzz719/mit-6.824/labrpc"
+)
 
 // import "bytes"
 // import "labgob"

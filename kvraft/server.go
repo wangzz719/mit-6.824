@@ -1,11 +1,12 @@
 package raftkv
 
 import (
-	"labgob"
-	"labrpc"
 	"log"
-	"raft"
 	"sync"
+
+	"github.com/wangzz719/mit-6.824/labgob"
+	"github.com/wangzz719/mit-6.824/labrpc"
+	"github.com/wangzz719/mit-6.824/raft"
 )
 
 const Debug = 0
@@ -29,7 +30,7 @@ type KVServer struct {
 	rf      *raft.Raft
 	applyCh chan raft.ApplyMsg
 
-	maxraftstate int // snapshot if log grows this big
+	maxRaftState int // snapshot if log grows this big
 
 	// Your definitions here.
 }
@@ -61,8 +62,8 @@ func (kv *KVServer) Kill() {
 // the k/v server should store snapshots through the underlying Raft
 // implementation, which should call persister.SaveStateAndSnapshot() to
 // atomically save the Raft state along with the snapshot.
-// the k/v server should snapshot when Raft's saved state exceeds maxraftstate bytes,
-// in order to allow Raft to garbage-collect its log. if maxraftstate is -1,
+// the k/v server should snapshot when Raft's saved state exceeds maxRaftState bytes,
+// in order to allow Raft to garbage-collect its log. if maxRaftState is -1,
 // you don't need to snapshot.
 // StartKVServer() must return quickly, so it should start goroutines
 // for any long-running work.
@@ -74,7 +75,7 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 
 	kv := new(KVServer)
 	kv.me = me
-	kv.maxraftstate = maxraftstate
+	kv.maxRaftState = maxraftstate
 
 	// You may need initialization code here.
 
